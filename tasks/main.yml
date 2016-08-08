@@ -1,0 +1,40 @@
+---
+- name: create pki dir
+  file: >-
+    path={{pki_dir}}
+    state=directory
+    mode=0700
+
+- name: creating CA CSR json
+  with_items:
+    - cacsr.json
+    - csr.json
+  template: >-
+    src={{item}}.j2
+    dest={{pki_dir}}/{{item}}
+    mode=0600
+
+- name: create CA CSR
+  when: not pki_self_sign
+  shell: cfssl genkey cacsr.json | cfssljson -bare ca
+  args: 
+    chdir: '{{pki_dir}}'
+    creates: '{{pki_dir}}/ca.csr'
+
+- name: create certificate authority key pair and CSR
+  when: pki_self_sign
+  shell: cfssl genkey -initca cacsr.json | cfssljson -bare ca
+  args:
+    chdir: '{{pki_dir}}'
+    creates: '{{pki_dir}}/ca.pem'
+
+- name: generating client csr.json files
+  with_items: '{{pki_servers}}'
+  shell: >-
+    cfssl gencert
+    -ca {{pki_dir}}/ca.pem
+    -ca-key {{pki_dir}}/ca-key.pem
+    -hostname {{item.cname}}{% if item.include_localhost %},localhost,127.0.0.1{% endif %}{% for n in item.sans %},{{n}}{% endfor %}{% for n in item.altips %},{{n}}{% endfor %} csr.json | cfssljson -bare {{item.cname}}
+  args:
+    chdir: '{{pki_dir}}'
+    creates: '{{pki_dir}}/{{item.cname}}.pem'

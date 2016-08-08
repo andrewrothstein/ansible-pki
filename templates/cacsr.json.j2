@@ -1,0 +1,5 @@
+{
+    "hosts": {{ ([pki_ca["cname"]] + pki_ca["sans"] + pki_ca["altips"]) | to_json}},
+    "key" : {{pki_key | to_json}},
+    "names" : {{pki_names | to_json}}
+}

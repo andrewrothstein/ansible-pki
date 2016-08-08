@@ -1,0 +1,44 @@
+---
+pki_dir: "~/pki"
+
+# for each domain create a directory
+# ~/pki/example.com
+# ~/pki/example.com/cacsr.json - cfssl CA config
+# ~/pki/example.com/ca_key.pem
+# ~/pki/example.com/ca.csr
+# ~/pki/example.com/ca.pem
+# 
+
+pki_names:
+  - C: US
+    L: 'New York'
+    O: 'Example'
+    OU: WWW
+    ST: 'New York'
+
+pki_key:
+  algo: rsa
+  size: 2048
+
+pki_self_sign: True
+pki_ca:
+  cname: ca.example.com
+  sans: []
+  altips: []
+
+pki_servers:
+  - cname: www-1.example.com
+    include_localhost: True
+    sans:
+      - www.example.com
+    altips: []
+  - cname: www-2.example.com
+    include_localhost: True
+    sans:
+      - www.example.com
+    altips: []
+  - cname: www-3.example.com
+    include_localhost: True
+    sans:
+      - www.example.com
+    altips: []
