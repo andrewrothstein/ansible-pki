@@ -1,13 +1,21 @@
 ---
-pki_dir: "~/pki"
-
-# for each domain create a directory
+# create a directory for your domain
 # ~/pki/example.com
 # ~/pki/example.com/cacsr.json - cfssl CA config
 # ~/pki/example.com/ca_key.pem
 # ~/pki/example.com/ca.csr
 # ~/pki/example.com/ca.pem
-# 
+# ~/pki/example.com/www-1.example.com.csr
+# ~/pki/example.com/www-1.example.com-key.pem
+# ~/pki/example.com/www-1.example.com.pem
+# ~/pki/example.com/www-2.example.com.csr
+# ~/pki/example.com/www-2.example.com-key.pem
+# ~/pki/example.com/www-2.example.com.pem
+# ~/pki/example.com/www-3.example.com.csr
+# ~/pki/example.com/www-3.example.com-key.pem
+# ~/pki/example.com/www-3.example.com.pem
+#...
+pki_dir: "~/pki"
 
 pki_names:
   - C: US
