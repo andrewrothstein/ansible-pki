@@ -12,13 +12,14 @@ galaxy_info:
         - 7
     - name: Fedora
       versions:
-        - 23
+        - 24
     - name: Ubuntu
       versions:
-        - trusty
         - xenial
   galaxy_tags:
-    - development
+    - ssl
+    - tls
+    - pki
 
 dependencies:
   - role: andrewrothstein.cfssl
