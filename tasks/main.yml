@@ -34,7 +34,7 @@
     cfssl gencert
     -ca {{pki_dir}}/ca.pem
     -ca-key {{pki_dir}}/ca-key.pem
-    -hostname {{item.cname}}{% if item.include_localhost %},localhost,127.0.0.1{% endif %}{% for n in item.sans %},{{n}}{% endfor %}{% for n in item.altips %},{{n}}{% endfor %} csr.json | cfssljson -bare {{item.cname}}
+    -hostname {{item.cname}}{% if item.include_localhost is defined and item.include_localhost %},localhost,127.0.0.1{% endif %}{{ (item.sans|default([]) + item.altips|default([])) | join(" ") }} csr.json | cfssljson -bare {{item.cname}}
   args:
     chdir: '{{pki_dir}}'
     creates: '{{pki_dir}}/{{item.cname}}.pem'
