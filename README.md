@@ -31,7 +31,14 @@ Recommended to target localhost if you're managing a local eyes-above-the-wall P
   roles:
     - role: andrewrothstein.pki
 	  pki_dir: ~/pki
-	  ...[example](defaults/main.yml)....
+      pki_self_sign: Ture
+	  pki_ca:
+	    cname: ca.foo.io
+	  pki_servers:
+	    - cname: host1.foo.io
+		- cname: host2.foo.io
+		- cname: host3.foo.io
+```
 
 License
 -------
