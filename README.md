@@ -8,29 +8,30 @@ learn the openssl command line!
 Requirements
 ------------
 
-See (meta/main.yml)[meta/main.yml]
+See [meta/main.yml](meta/main.yml)
 
 Role Variables
 --------------
 
-See (defaults/main.yml)[defaults/main.yml]
+See [defaults/main.yml](defaults/main.yml)
 
 Dependencies
 ------------
 
-See (meta/main.yml)[meta/main.yml]
+See [meta/main.yml](meta/main.yml)
 
 Example Playbook
 ----------------
 
 Recommended to target localhost if you're managing a local eyes-above-the-wall PKI.
 
-    - hosts: localhost
-      connection: local
-      roles:
-         - role: andrewrothstein.pki
-	   pki_dir: ~/pki
-	   ...see (defaults/main.yml)[defaults/main.yml]....
+```yml
+- hosts: localhost
+  connection: local
+  roles:
+    - role: andrewrothstein.pki
+	  pki_dir: ~/pki
+	  ...[example](defaults/main.yml)....
 
 License
 -------
@@ -40,4 +41,4 @@ MIT
 Author Information
 ------------------
 
-Andrew Rothstein andrew.rothstein@gmail.com
+Andrew Rothstein <andrew.rothstein@gmail.com>
