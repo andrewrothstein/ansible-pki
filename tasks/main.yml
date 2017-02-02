@@ -16,14 +16,14 @@
 
 - name: create CA CSR
   when: not pki_self_sign
-  shell: cfssl genkey cacsr.json | cfssljson -bare ca
+  shell: '{{pki_cfssl_root}}/cfssl genkey cacsr.json | {{pki_cfssl_root}}/cfssljson -bare ca'
   args: 
     chdir: '{{pki_dir}}'
     creates: '{{pki_dir}}/ca.csr'
 
 - name: create certificate authority key pair and CSR
   when: pki_self_sign
-  shell: cfssl genkey -initca cacsr.json | cfssljson -bare ca
+  shell: '{{pki_cfssl_root}}/cfssl genkey -initca cacsr.json | {{pki_cfssl_root}}/cfssljson -bare ca'
   args:
     chdir: '{{pki_dir}}'
     creates: '{{pki_dir}}/ca.pem'
@@ -31,10 +31,11 @@
 - name: generating client csr.json files
   with_items: '{{pki_servers}}'
   shell: >-
-    cfssl gencert
+    {{pki_cfssl_root}}/cfssl gencert
     -ca {{pki_dir}}/ca.pem
     -ca-key {{pki_dir}}/ca-key.pem
-    -hostname {{ ([item.cname] + (['localhost', '127.0.0.1'] if item.include_localhost is defined and item.include_localhost else []) + (item.sans|default([])) + (item.altips|default([]))) | join(",") }} csr.json | cfssljson -bare {{item.cname}}
+    -hostname {{ ([item.cname] + (['localhost', '127.0.0.1'] if item.include_localhost is defined and item.include_localhost else []) + (item.sans|default([])) + (item.altips|default([]))) | join(",") }} csr.json 
+    | {{pki_cfssl_root}}/cfssljson -bare {{item.cname}}
   args:
     chdir: '{{pki_dir}}'
     creates: '{{pki_dir}}/{{item.cname}}.pem'
