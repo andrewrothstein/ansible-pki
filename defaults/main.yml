@@ -50,3 +50,5 @@ pki_servers:
     sans:
       - www.example.com
     altips: []
+
+pki_cfssl_root: /usr/local/bin
