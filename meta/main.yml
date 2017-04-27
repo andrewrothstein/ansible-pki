@@ -26,4 +26,4 @@ galaxy_info:
 
 dependencies:
   - role: andrewrothstein.cfssl
-    version: v1.0.7
+    version: v1.0.9
