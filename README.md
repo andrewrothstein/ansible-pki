@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/andrewrothstein/ansible-pki.svg?style=svg)](https://circleci.com/gh/andrewrothstein/ansible-pki)
 andrewrothstein.pki
 =========
+[![Build Status](https://travis-ci.org/andrewrothstein/ansible-pki.svg?branch=master)](https://travis-ci.org/andrewrothstein/ansible-pki)
 
 A role for managing a PKI. Leverags cfssl to build a CA key/cert, and collection of key/cert
 pairs for a fleet of hosts. Supports subject alternate names. Saved me from having to
