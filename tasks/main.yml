@@ -34,7 +34,6 @@
     {{pki_cfssl_root}}/cfssl gencert
     -ca {{pki_dir}}/ca.pem
     -ca-key {{pki_dir}}/ca-key.pem
-    -cn {{item.cname}}
     -hostname {{ ([item.cname] + (['localhost', '127.0.0.1'] if item.include_localhost is defined and item.include_localhost else []) + (item.sans|default([])) + (item.altips|default([]))) | join(",") }} csr.json
     | {{pki_cfssl_root}}/cfssljson -bare {{item.cname}}
   args:
