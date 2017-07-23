@@ -31,5 +31,5 @@ galaxy_info:
     - pki
 
 dependencies:
-  - role: andrewrothstein.cfssl
+  - src: andrewrothstein.cfssl
     version: v2.0.1
