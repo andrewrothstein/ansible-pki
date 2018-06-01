@@ -15,7 +15,12 @@
 # ~/pki/example.com/www-3.example.com-key.pem
 # ~/pki/example.com/www-3.example.com.pem
 #...
-pki_dir: "~/pki"
+pki_dir: /tmp/pki
+pki_self_sign: True
+
+pki_key:
+    algo: rsa
+    size: 2048
 
 pki_names:
   - C: US
@@ -24,31 +29,42 @@ pki_names:
     OU: WWW
     ST: 'New York'
 
-pki_key:
-  algo: rsa
-  size: 2048
-
-pki_self_sign: True
 pki_ca:
   cname: ca.example.com
-  sans: []
-  altips: []
+  sans:
+    - ca-dr.example.com
+  altips:
+    - 192.168.0.1
 
 pki_servers:
   - cname: www-1.example.com
     include_localhost: True
     sans:
       - www.example.com
-    altips: []
+    altips:
+      - '192.168.0.2'
   - cname: www-2.example.com
     include_localhost: True
     sans:
       - www.example.com
-    altips: []
+    altips:
+      - '192.168.0.3'
   - cname: www-3.example.com
     include_localhost: True
     sans:
       - www.example.com
-    altips: []
+    altips:
+      - '192.168.0.4'
+  - cname: vault.example.com
+    key:
+      algo: rsa
+      size: 4096
+    names:
+      - C: US
+        L: Englewood
+        O: 'Example Holding Co'
+        OU: INFOSEC
+        ST: 'New Jersey'
+
 
 pki_cfssl_root: /usr/local/bin

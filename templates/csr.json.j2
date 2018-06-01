@@ -1,4 +1,6 @@
 {
-    "key" : {{pki_key|to_json}},
-    "names" : {{pki_names|to_json}}
+    "CN": {{item.cname | to_json}},
+    "hosts": {{ (item.sans|default([]) + item.altips|default([]) + (["localhost", "127.0.0.1"] if (item.include_localhost|default(false)) else [])) | to_json}},
+    "key" : {{item.key | default(pki_key) | to_json}},
+    "names" : {{item.names | default(pki_names) | to_json}}
 }
