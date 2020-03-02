@@ -88,6 +88,7 @@ pki_servers:
     altips:
       - '192.168.0.4'
   - cname: vault.example.com
+    profile: server
     key:
       algo: rsa
       size: 4096
