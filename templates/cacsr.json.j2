@@ -1,4 +1,8 @@
 {
+    "CA": {
+        "expiry": {{ pki_ca.expiry | to_json }},
+        "pathlen": {{ pki_ca.pathlen | to_json }}
+    },
     "CN": {{ pki_ca.cname | to_json }},
     "hosts": {{  (pki_ca.sans | default([]) + pki_ca.altips | default([])) | to_json }},
     "key" : {{ pki_key | to_json }},

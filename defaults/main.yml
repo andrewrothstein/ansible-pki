@@ -20,9 +20,34 @@ pki_self_sign: True
 pki_dir: /tmp/pki
 pki_cfssl_root: /usr/local/bin
 
+pki_ca_config:
+  signing:
+    default:
+      expiry: '168h'
+    profiles:
+      server:
+        expiry: '8760h'
+        usages:
+          - signing
+          - key encipherment
+          - server auth
+      client:
+        expiry: '8760h'
+        usages:
+          - signing
+          - key encipherment
+          - client auth
+      'client-server':
+        expiry: '8760h'
+        usages:
+          - signing
+          - key encipherment
+          - server auth
+          - client auth
+
 pki_key:
     algo: rsa
-    size: 2048
+    size: 4096
 
 pki_names:
   - C: US
@@ -32,6 +57,8 @@ pki_names:
     ST: 'New York'
 
 pki_ca:
+  expiry: '87600h'
+  pathlen: 0
   cname: ca.example.com
   sans:
     - ca-dr.example.com
@@ -41,18 +68,21 @@ pki_ca:
 pki_servers:
   - cname: www-1.example.com
     include_localhost: True
+    profile: server
     sans:
       - www.example.com
     altips:
       - '192.168.0.2'
   - cname: www-2.example.com
     include_localhost: True
+    profile: client
     sans:
       - www.example.com
     altips:
       - '192.168.0.3'
   - cname: www-3.example.com
     include_localhost: True
+    profile: client-server
     sans:
       - www.example.com
     altips:

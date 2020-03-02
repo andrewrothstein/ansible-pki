@@ -1,52 +1,60 @@
 ---
 - name: create pki dir
   file:
-    path: '{{pki_dir}}'
+    path: '{{ pki_dir }}'
     state: directory
     mode: 0700
+
+- name: writing ca-config.json
+  template:
+    src: ca-config.json.j2
+    dest: '{{ pki_dir }}/ca-config.json'
+    mode: 0600
 
 - name: creating CA CSR json
   template:
     src: cacsr.json.j2
-    dest: '{{pki_dir}}/cacsr.json'
+    dest: '{{ pki_dir }}/cacsr.json'
     mode: 0600
 
 - name: creating CSR for CA json
   with_items:
-    - '{{pki_ca}}'
+    - '{{ pki_ca }}'
   template:
     src: csr.json.j2
-    dest: '{{pki_dir}}/csr.json'
+    dest: '{{ pki_dir }}/csr.json'
     mode: 0600
 
 - name: create CA CSR
   when: not pki_self_sign
-  shell: '{{pki_cfssl_root}}/cfssl genkey cacsr.json | {{pki_cfssl_root}}/cfssljson -bare ca'
+  shell: '{{ pki_cfssl_root }}/cfssl genkey cacsr.json | {{ pki_cfssl_root }}/cfssljson -bare ca'
   args:
-    chdir: '{{pki_dir}}'
-    creates: '{{pki_dir}}/ca.csr'
+    chdir: '{{ pki_dir }}'
+    creates: '{{ pki_dir }}/ca.csr'
 
 - name: create certificate authority key pair and CSR
   when: pki_self_sign
-  shell: '{{pki_cfssl_root}}/cfssl genkey -initca cacsr.json | {{pki_cfssl_root}}/cfssljson -bare ca'
+  shell: '{{ pki_cfssl_root }}/cfssl genkey -initca cacsr.json | {{ pki_cfssl_root }}/cfssljson -bare ca'
   args:
-    chdir: '{{pki_dir}}'
-    creates: '{{pki_dir}}/ca.pem'
+    chdir: '{{ pki_dir }}'
+    creates: '{{ pki_dir }}/ca.pem'
 
 - name: generating client csr.json files
-  with_items: '{{pki_servers}}'
+  with_items: '{{ pki_servers }}'
   template:
     src: csr.json.j2
-    dest: '{{pki_dir}}/{{item.cname}}.json'
+    dest: '{{ pki_dir }}/{{ item.cname }}.json'
 
 - name: generating client csr.json files
-  with_items: '{{pki_servers}}'
+  with_items: '{{ pki_servers }}'
   shell: >-
-    {{pki_cfssl_root}}/cfssl gencert
-    -ca={{pki_dir}}/ca.pem
-    -ca-key={{pki_dir}}/ca-key.pem
-    {{pki_dir}}/{{item.cname}}.json
-    | {{pki_cfssl_root}}/cfssljson -bare {{item.cname}}
+    {{ pki_cfssl_root }}/cfssl gencert
+    -ca={{ pki_dir }}/ca.pem
+    -ca-key={{ pki_dir }}/ca-key.pem
+    -config={{ pki_dir }}/ca-config.json
+    {% if 'profile' in item %}-profile={{ item.profile }}{% endif %}
+    {{ pki_dir }}/{{ item.cname }}.json
+    | {{ pki_cfssl_root }}/cfssljson -bare {{ item.cname }}
   args:
-    chdir: '{{pki_dir}}'
-    creates: '{{pki_dir}}/{{item.cname}}.pem'
+    chdir: '{{ pki_dir }}'
+    creates: '{{ pki_dir }}/{{ item.cname }}.pem'
