@@ -39,13 +39,19 @@
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/ca.pem'
 
+- name: generating CA pfx
+  when: pki_self_sign
+  shell: 'openssl pkcs12 -inkey {{ pki_dir }}/ca-key.pem -in {{ pki_dir }}/ca.pem -export -out {{ pki_dir }}/ca.pfx -passout pass:'
+  args:
+    creates: '{{ pki_dir }}/ca.pfx'
+
 - name: generating client csr.json files
   with_items: '{{ pki_servers }}'
   template:
     src: csr.json.j2
     dest: '{{ pki_dir }}/{{ item.cname }}.json'
 
-- name: generating client csr.json files
+- name: generating keys/certs
   with_items: '{{ pki_servers }}'
   shell: >-
     {{ pki_cfssl_root }}/cfssl gencert
@@ -58,3 +64,9 @@
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/{{ item.cname }}.pem'
+
+- name: generating PFX...
+  with_items: '{{ pki_servers }}'
+  shell: 'openssl pkcs12 -inkey {{ pki_dir }}/{{ item.cname }}-key.pem -in {{ pki_dir }}/{{ item.cname }}.pem -export -out {{ pki_dir }}/{{ item.cname }}.pfx -passout pass:'
+  args:
+    creates: '{{ pki_dir }}/{{ item.cname }}.pfx'
