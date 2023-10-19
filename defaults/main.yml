@@ -14,9 +14,9 @@
 # /tmp/pki/example.com/www-3.example.com.csr
 # /tmp/pki/example.com/www-3.example.com-key.pem
 # /tmp/pki/example.com/www-3.example.com.pem
-#...
+# ...
 
-pki_self_sign: True
+pki_self_sign: true
 pki_dir: /tmp/pki
 pki_cfssl_root: /usr/local/bin
 
@@ -46,8 +46,8 @@ pki_ca_config:
           - client auth
 
 pki_key:
-    algo: rsa
-    size: 4096
+  algo: rsa
+  size: 4096
 
 pki_names:
   - C: US
@@ -67,21 +67,21 @@ pki_ca:
 
 pki_servers:
   - cname: www-1.example.com
-    include_localhost: True
+    include_localhost: true
     profile: server
     sans:
       - www.example.com
     altips:
       - '192.168.0.2'
   - cname: www-2.example.com
-    include_localhost: True
+    include_localhost: true
     profile: client
     sans:
       - www.example.com
     altips:
       - '192.168.0.3'
   - cname: www-3.example.com
-    include_localhost: True
+    include_localhost: true
     profile: client-server
     sans:
       - www.example.com

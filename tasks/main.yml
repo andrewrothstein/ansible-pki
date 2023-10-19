@@ -14,6 +14,8 @@
     mode: 0600
 
 - name: writing cacsr.json ({{ pki_cacsr_json }})
+  with_items:
+    - '{{ pki_ca }}'
   template:
     src: cacsr.json.j2
     dest: '{{ pki_cacsr_json }}'
