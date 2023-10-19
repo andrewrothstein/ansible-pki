@@ -1,6 +1,8 @@
 ---
 - include_role:
     name: andrewrothstein.cfssl
+- include_role:
+    name: andrewrothstein.openssl
 - name: creating {{ pki_dir }}
   file:
     path: '{{ pki_dir }}'
