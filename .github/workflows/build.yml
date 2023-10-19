@@ -33,7 +33,6 @@ jobs:
         - archlinux_latest
         - debian_bookworm
         - debian_bullseye
-        - debian_stretch
         - fedora_37
         - fedora_38
         - rockylinux_8
