@@ -1,49 +1,56 @@
 ---
-- name: create pki dir
+- include_role:
+    name: andrewrothstein.cfssl
+- name: creating {{ pki_dir }}
   file:
     path: '{{ pki_dir }}'
     state: directory
     mode: 0700
 
-- name: writing ca-config.json
+- name: writing ca-config.json ({{ pki_ca_config_json }})
   template:
     src: ca-config.json.j2
-    dest: '{{ pki_dir }}/ca-config.json'
+    dest: '{{ pki_ca_config_json }}'
     mode: 0600
 
-- name: creating CA CSR json
+- name: writing cacsr.json ({{ pki_cacsr_json }})
   template:
     src: cacsr.json.j2
-    dest: '{{ pki_dir }}/cacsr.json'
+    dest: '{{ pki_cacsr_json }}'
     mode: 0600
 
-- name: creating CSR for CA json
-  with_items:
-    - '{{ pki_ca }}'
+- name: creating csr.json ({{ pki_csr_json }})
   template:
     src: csr.json.j2
-    dest: '{{ pki_dir }}/csr.json'
+    dest: '{{ pki_csr_json }}'
     mode: 0600
 
-- name: create CA CSR
+- name: creating CA CSR ({{ pki_ca_csr }})
   when: not pki_self_sign
-  shell: '{{ pki_cfssl_root }}/cfssl genkey cacsr.json | {{ pki_cfssl_root }}/cfssljson -bare ca'
+  shell: cfssl genkey cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
-    creates: '{{ pki_dir }}/ca.csr'
+    creates: '{{ pki_ca_csr }}'
 
-- name: create certificate authority key pair and CSR
+- name: create certificate authority key pair and CSR ({{ pki_ca_pem }})
   when: pki_self_sign
-  shell: '{{ pki_cfssl_root }}/cfssl genkey -initca cacsr.json | {{ pki_cfssl_root }}/cfssljson -bare ca'
+  shell: cfssl genkey -initca cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
-    creates: '{{ pki_dir }}/ca.pem'
+    creates: '{{ pki_ca_pem }}'
 
-- name: generating CA pfx
+- name: generating CA pfx ({{ pki_ca_pfx }})
   when: pki_self_sign
-  shell: 'openssl pkcs12 -inkey {{ pki_dir }}/ca-key.pem -in {{ pki_dir }}/ca.pem -export -out {{ pki_dir }}/ca.pfx -passout pass:'
+  shell: >-
+    openssl pkcs12
+    -inkey ca-key.pem
+    -in ca.pem
+    -export
+    -out ca.pfx
+    -passout pass:
   args:
-    creates: '{{ pki_dir }}/ca.pfx'
+    chdir: '{{ pki_dir }}'
+    creates: '{{ pki_ca_pfx }}'
 
 - name: generating client csr.json files
   with_items: '{{ pki_servers }}'
@@ -54,19 +61,26 @@
 - name: generating keys/certs
   with_items: '{{ pki_servers }}'
   shell: >-
-    {{ pki_cfssl_root }}/cfssl gencert
-    -ca={{ pki_dir }}/ca.pem
+    cfssl gencert
+    -ca={{ pki_ca_pem }}
     -ca-key={{ pki_dir }}/ca-key.pem
     -config={{ pki_dir }}/ca-config.json
     {% if 'profile' in item %}-profile={{ item.profile }}{% endif %}
-    {{ pki_dir }}/{{ item.cname }}.json
-    | {{ pki_cfssl_root }}/cfssljson -bare {{ item.cname }}
+    {{ item.cname }}.json
+    | cfssljson -bare {{ item.cname }}
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/{{ item.cname }}.pem'
 
 - name: generating PFX...
   with_items: '{{ pki_servers }}'
-  shell: 'openssl pkcs12 -inkey {{ pki_dir }}/{{ item.cname }}-key.pem -in {{ pki_dir }}/{{ item.cname }}.pem -export -out {{ pki_dir }}/{{ item.cname }}.pfx -passout pass:'
+  shell: >-
+    openssl pkcs12
+    -inkey {{ item.cname }}-key.pem
+    -in {{ item.cname }}.pem
+    -export
+    -out {{ item.cname }}.pfx
+    -passout pass:
   args:
+    chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/{{ item.cname }}.pfx'

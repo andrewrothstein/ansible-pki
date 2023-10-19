@@ -1,2 +1,8 @@
 ---
 # vars file for pki
+pki_ca_config_json: '{{ pki_dir }}/ca-config.json'
+pki_cacsr_json: '{{ pki_dir }}/cacsr.json'
+pki_csr_json: '{{ pki_dir }}/csr.json'
+pki_ca_csr: '{{ pki_dir }}/ca.csr'
+pki_ca_pem: '{{ pki_dir }}/ca.pem'
+pki_ca_pfx: '{{ pki_dir }}/ca.pfx'
