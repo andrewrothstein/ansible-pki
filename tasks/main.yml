@@ -14,14 +14,14 @@
     mode: 0600
 
 - name: writing cacsr.json ({{ pki_cacsr_json }})
-  with_items:
-    - '{{ pki_ca }}'
   template:
     src: cacsr.json.j2
     dest: '{{ pki_cacsr_json }}'
     mode: 0600
 
 - name: creating csr.json ({{ pki_csr_json }})
+  with_items:
+    - '{{ pki_ca }}'
   template:
     src: csr.json.j2
     dest: '{{ pki_csr_json }}'
