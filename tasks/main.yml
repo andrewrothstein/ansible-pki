@@ -1,51 +1,53 @@
 ---
-- include_role:
+- ansible.builtin.include_role:
     name: andrewrothstein.cfssl
-- include_role:
+- ansible.builtin.include_role:
     name: andrewrothstein.openssl
 - name: creating {{ pki_dir }}
-  file:
+  ansible.builtin.file:
     path: '{{ pki_dir }}'
     state: directory
-    mode: 0700
+    mode: '700'
 
 - name: writing ca-config.json ({{ pki_ca_config_json }})
-  template:
+  ansible.builtin.template:
     src: ca-config.json.j2
     dest: '{{ pki_ca_config_json }}'
-    mode: 0600
+    mode: '600'
 
 - name: writing cacsr.json ({{ pki_cacsr_json }})
-  template:
+  ansible.builtin.template:
     src: cacsr.json.j2
     dest: '{{ pki_cacsr_json }}'
-    mode: 0600
+    mode: '600'
 
 - name: creating csr.json ({{ pki_csr_json }})
   with_items:
     - '{{ pki_ca }}'
-  template:
+  ansible.builtin.template:
     src: csr.json.j2
     dest: '{{ pki_csr_json }}'
-    mode: 0600
+    mode: '600'
 
 - name: creating CA CSR ({{ pki_ca_csr }})
   when: not pki_self_sign
-  shell: cfssl genkey cacsr.json | cfssljson -bare ca
+  ansible.builtin.shell: |-
+    cfssl genkey cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_ca_csr }}'
 
 - name: create certificate authority key pair and CSR ({{ pki_ca_pem }})
   when: pki_self_sign
-  shell: cfssl genkey -initca cacsr.json | cfssljson -bare ca
+  ansible.builtin.shell: |-
+    cfssl genkey -initca cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_ca_pem }}'
 
 - name: generating CA pfx ({{ pki_ca_pfx }})
   when: pki_self_sign
-  shell: >-
+  ansible.builtin.shell: >-
     openssl pkcs12
     -inkey ca-key.pem
     -in ca.pem
@@ -58,13 +60,13 @@
 
 - name: generating client csr.json files
   with_items: '{{ pki_servers }}'
-  template:
+  ansible.builtin.template:
     src: csr.json.j2
     dest: '{{ pki_dir }}/{{ item.cname }}.json'
 
 - name: generating keys/certs
   with_items: '{{ pki_servers }}'
-  shell: >-
+  ansible.builtin.shell: >-
     cfssl gencert
     -ca={{ pki_ca_pem }}
     -ca-key={{ pki_dir }}/ca-key.pem
@@ -78,7 +80,7 @@
 
 - name: generating PFX...
   with_items: '{{ pki_servers }}'
-  shell: >-
+  ansible.builtin.shell: >-
     openssl pkcs12
     -inkey {{ item.cname }}-key.pem
     -in {{ item.cname }}.pem
