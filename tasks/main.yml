@@ -1,27 +1,29 @@
 ---
-- ansible.builtin.include_role:
+- name: Installing andrewrothstein.cfssl
+  ansible.builtin.include_role:
     name: andrewrothstein.cfssl
-- ansible.builtin.include_role:
+- name: Installing andrwerothstein.openssl
+  ansible.builtin.include_role:
     name: andrewrothstein.openssl
-- name: creating {{ pki_dir }}
+- name: Creating {{ pki_dir }}
   ansible.builtin.file:
     path: '{{ pki_dir }}'
     state: directory
     mode: '700'
 
-- name: writing ca-config.json ({{ pki_ca_config_json }})
+- name: Writing ca-config.json ({{ pki_ca_config_json }})
   ansible.builtin.template:
     src: ca-config.json.j2
     dest: '{{ pki_ca_config_json }}'
     mode: '600'
 
-- name: writing cacsr.json ({{ pki_cacsr_json }})
+- name: Writing cacsr.json ({{ pki_cacsr_json }})
   ansible.builtin.template:
     src: cacsr.json.j2
     dest: '{{ pki_cacsr_json }}'
     mode: '600'
 
-- name: creating csr.json ({{ pki_csr_json }})
+- name: Creating csr.json ({{ pki_csr_json }})
   with_items:
     - '{{ pki_ca }}'
   ansible.builtin.template:
@@ -29,25 +31,27 @@
     dest: '{{ pki_csr_json }}'
     mode: '600'
 
-- name: creating CA CSR ({{ pki_ca_csr }})
-  when: not pki_self_sign
+- name: Creating CA CSR ({{ pki_ca_csr }})
+  when: not pki_self_sign | bool
   ansible.builtin.shell: |-
+    set -euo pipefail
     cfssl genkey cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_ca_csr }}'
 
-- name: create certificate authority key pair and CSR ({{ pki_ca_pem }})
-  when: pki_self_sign
+- name: Create certificate authority key pair and CSR ({{ pki_ca_pem }})
+  when: pki_self_sign | bool
   ansible.builtin.shell: |-
+    set -euo pipefail
     cfssl genkey -initca cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_ca_pem }}'
 
-- name: generating CA pfx ({{ pki_ca_pfx }})
-  when: pki_self_sign
-  ansible.builtin.shell: >-
+- name: Generating CA pfx ({{ pki_ca_pfx }})
+  when: pki_self_sign | bool
+  ansible.builtin.command: >-
     openssl pkcs12
     -inkey ca-key.pem
     -in ca.pem
@@ -58,29 +62,33 @@
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_ca_pfx }}'
 
-- name: generating client csr.json files
+- name: Generating client csr.json files
   with_items: '{{ pki_servers }}'
   ansible.builtin.template:
     src: csr.json.j2
     dest: '{{ pki_dir }}/{{ item.cname }}.json'
+    mode: '644'
 
-- name: generating keys/certs
+- name: Generating keys/certs
   with_items: '{{ pki_servers }}'
-  ansible.builtin.shell: >-
-    cfssl gencert
-    -ca={{ pki_ca_pem }}
-    -ca-key={{ pki_dir }}/ca-key.pem
-    -config={{ pki_dir }}/ca-config.json
-    {% if 'profile' in item %}-profile={{ item.profile }}{% endif %}
-    {{ item.cname }}.json
+  ansible.builtin.shell: |-
+    set -euo pipefail
+    cfssl gencert \
+      -ca={{ pki_ca_pem }} \
+      -ca-key={{ pki_dir }}/ca-key.pem \
+      -config={{ pki_dir }}/ca-config.json
+    {%- if 'profile' in item %} \
+      -profile={{ item.profile }}
+    {%- endif %} \
+    {{ item.cname }}.json \
     | cfssljson -bare {{ item.cname }}
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/{{ item.cname }}.pem'
 
-- name: generating PFX...
+- name: Generating PFX...
   with_items: '{{ pki_servers }}'
-  ansible.builtin.shell: >-
+  ansible.builtin.command: >-
     openssl pkcs12
     -inkey {{ item.cname }}-key.pem
     -in {{ item.cname }}.pem

@@ -1,5 +1,5 @@
 ---
 - name: andrewrothstein.cfssl
-  version: v3.1.4
+  version: v3.1.6
 - name: andrewrothstein.openssl
-  version: v1.1.1
+  version: v1.2.0
