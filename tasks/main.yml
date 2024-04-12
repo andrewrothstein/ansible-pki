@@ -5,9 +5,6 @@
 - name: Installing andrwerothstein.openssl
   ansible.builtin.include_role:
     name: andrewrothstein.openssl
-- name: Installing andrewrothstein.bash
-  ansible.builtin.include_role:
-    name: andrewrothstein.bash
 - name: Creating {{ pki_dir }}
   ansible.builtin.file:
     path: '{{ pki_dir }}'
@@ -37,7 +34,6 @@
 - name: Creating CA CSR ({{ pki_ca_csr }})
   when: not pki_self_sign | bool
   ansible.builtin.shell: |-
-    set -euo pipefail
     cfssl genkey cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
@@ -46,7 +42,6 @@
 - name: Create certificate authority key pair and CSR ({{ pki_ca_pem }})
   when: pki_self_sign | bool
   ansible.builtin.shell: |-
-    set -euo pipefail
     cfssl genkey -initca cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
@@ -75,7 +70,6 @@
 - name: Generating keys/certs
   with_items: '{{ pki_servers }}'
   ansible.builtin.shell: |-
-    set -euo pipefail
     cfssl gencert \
       -ca={{ pki_ca_pem }} \
       -ca-key={{ pki_dir }}/ca-key.pem \
