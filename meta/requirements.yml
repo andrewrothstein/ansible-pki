@@ -3,3 +3,5 @@
   version: v3.1.6
 - name: andrewrothstein.openssl
   version: v1.2.0
+- name: andrewrothstein.bash
+  version: v1.2.2

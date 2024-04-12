@@ -5,6 +5,9 @@
 - name: Installing andrwerothstein.openssl
   ansible.builtin.include_role:
     name: andrewrothstein.openssl
+- name: Installing andrewrothstein.bash
+  ansible.builtin.include_role:
+    name: andrewrothstein.bash
 - name: Creating {{ pki_dir }}
   ansible.builtin.file:
     path: '{{ pki_dir }}'
