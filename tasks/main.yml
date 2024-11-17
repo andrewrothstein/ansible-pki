@@ -34,6 +34,8 @@
 - name: Creating CA CSR ({{ pki_ca_csr }})
   when: not pki_self_sign | bool
   ansible.builtin.shell: |-
+    set -o pipefail
+    set -e
     cfssl genkey cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
@@ -42,6 +44,8 @@
 - name: Create certificate authority key pair and CSR ({{ pki_ca_pem }})
   when: pki_self_sign | bool
   ansible.builtin.shell: |-
+    set -o pipefail
+    set -e
     cfssl genkey -initca cacsr.json | cfssljson -bare ca
   args:
     chdir: '{{ pki_dir }}'
@@ -70,6 +74,8 @@
 - name: Generating keys/certs
   with_items: '{{ pki_servers }}'
   ansible.builtin.shell: |-
+    set -o pipefail
+    set -e
     cfssl gencert \
       -ca={{ pki_ca_pem }} \
       -ca-key={{ pki_dir }}/ca-key.pem \
@@ -78,7 +84,7 @@
       -profile={{ item.profile }}
     {%- endif %} \
     {{ item.cname }}.json \
-    | cfssljson -bare {{ item.cname }}
+      | cfssljson -bare {{ item.cname }}
   args:
     chdir: '{{ pki_dir }}'
     creates: '{{ pki_dir }}/{{ item.cname }}.pem'
